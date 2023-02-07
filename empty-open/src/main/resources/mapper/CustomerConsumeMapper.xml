@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.CustomerConsumeMapper">
+
+   	<insert id="saveList" parameterType="java.util.List">
+   		insert into customer_consume(id, agent_id, customer_id, name, phone, consume_number,
+   		                              consume_type, empty_id, remark, version, create_time, update_time,
+   		                               category, opening_balance, closing_balance)
+   		values
+		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.agentId},#{item.customerId},#{item.name},#{item.phone},#{item.consumeNumber},#{item.consumeType},
+				#{item.emptyId},#{item.remark},#{item.version},now(),now(),#{item.category},#{item.openingBalance},#{item.closingBalance})
+		</foreach>
+   	</insert>
+   	
+   	<update id="updateOne" parameterType="com.zhongzhi.empty.entity.CustomerConsume">
+   		update customer_consume
+   		set consume_number = #{consumeNumber},
+   		    consume_type = #{consumeType},
+   		    opening_balance = #{openingBalance},
+   		    closing_balance = #{closingBalance},
+   		    update_time = now()
+   		where empty_id = #{emptyId} and customer_id = #{customerId}
+   	</update>
+</mapper>

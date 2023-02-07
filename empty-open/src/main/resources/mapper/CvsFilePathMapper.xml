@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.CvsFilePathMapper">
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.CvsFilePath">
+   		insert into cvs_file_path(id, customer_id, create_date, empty_id, real_file_path, real_file_size,
+   		                          real_number, empty_file_path, empty_file_size, empty_number, risk_file_path,
+   		                          risk_file_size, risk_number, silent_file_path, silent_file_size, silent_number,
+   		                          zip_name, zip_path, zip_size, total_number, create_time,deleted)
+   		values
+   		(#{id},#{customerId},CURRENT_DATE(),#{emptyId},#{realFilePath},#{realFileSize},#{realNumber},
+   		 #{emptyFilePath},#{emptyFileSize},#{emptyNumber},#{riskFilePath},#{riskFileSize},#{riskNumber},
+   		 #{silentFilePath},#{silentFileSize},#{silentNumber},#{zipName},#{zipPath},#{zipSize},#{totalNumber},now(),0)
+   	</insert>
+   	
+   	<select id="findOne" resultType="com.zhongzhi.empty.entity.CvsFilePath"> 
+   		select id, customer_id customerId, create_date createDate, empty_id emptyId, real_file_path realFilePath, real_file_size realFileSize,
+               real_number realNumber, empty_file_path emptyFilePath, empty_file_size emptyFileSize, empty_number emptyNumber, risk_file_path riskFilePath,
+               risk_file_size riskFileSize, risk_number riskNumber, silent_file_path silentFilePath, silent_file_size silentFileSize, silent_number silentNumber,
+               zip_name zipName, zip_path zipPath, zip_size zipSize, total_number totalNumber, create_time createTime
+   		from cvs_file_path
+   		where customer_id = #{customerId} and empty_id = #{emptyId}
+   		limit 0,1
+   	</select>
+</mapper>

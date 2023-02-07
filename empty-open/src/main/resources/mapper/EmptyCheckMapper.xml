@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.EmptyCheckMapper">
+
+   	<insert id="saveList" parameterType="java.util.List">
+   		insert into empty_check(id, agent_id, agent_name, customer_id, name, size, real_number, silent_number,
+   		                        empty_number, risk_number, unknown_number, illegal_number, total_number, file_url, 
+   		                        status, send_id, cache_finish, retry_count, deleted, remark, version, create_time, 
+   		                        update_time, md5, line, send_count, check_type, category)
+   		values
+		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.agentId},#{item.agentName},#{item.customerId},#{item.name},#{item.size},#{item.realNumber},#{item.silentNumber},
+				#{item.emptyNumber},#{item.riskNumber},#{item.unknownNumber},#{item.illegalNumber},#{item.totalNumber},#{item.fileUrl},
+				#{item.status},#{item.sendId},#{item.cacheFinish},#{item.retryCount},0,#{item.remark},#{item.version},now(),
+				now(),#{item.md5},#{item.line},#{item.sendCount},#{item.checkType},#{item.category})
+		</foreach>
+   	</insert>
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.EmptyCheck">
+   		insert into empty_check(id, agent_id, agent_name, customer_id, name, size, real_number, silent_number,
+   		                        empty_number, risk_number, unknown_number, illegal_number, total_number, file_url, 
+   		                        status, send_id, cache_finish, retry_count, deleted, remark, version, create_time, 
+   		                        update_time, md5, line, send_count, check_type, category)
+   		values
+   		(#{id},#{agentId},#{agentName},#{customerId},#{name},#{size},#{realNumber},#{silentNumber},
+				#{emptyNumber},#{riskNumber},#{unknownNumber},#{illegalNumber},#{totalNumber},#{fileUrl},
+				#{status},#{sendId},#{cacheFinish},#{retryCount},0,#{remark},#{version},now(),
+				now(),#{md5},#{line},#{sendCount},#{checkType},#{category})
+   	</insert>
+   	
+   	<update id="updateOne" parameterType="com.zhongzhi.empty.entity.EmptyCheck">
+   		update empty_check
+   		set status = #{status},
+   		    real_number = #{realNumber},
+   		    empty_number = #{emptyNumber},
+   		    risk_number = #{riskNumber},
+   		    silent_number = #{silentNumber},
+   		    illegal_number = #{illegalNumber},
+   		    unknown_number = #{unknownNumber},
+   		    total_number = #{totalNumber},
+   		    line = #{line},
+   		    update_time = now()
+   		where id = #{id}
+   	</update>
+   	
+   	<select id="findOne" resultType="com.zhongzhi.empty.entity.EmptyCheck">
+   		select id, agent_id agentId, agent_name agentName, customer_id customerId, name, size, real_number realNumber, silent_number silentNumber,
+               empty_number emptyNumber, risk_number riskNumber, unknown_number unknownNumber, illegal_number illegalNumber, total_number totalNumber, file_url fileUrl, 
+               status, send_id sendId, cache_finish cacheFinish, retry_count retryCount, deleted, remark, version, create_time createTime, 
+               update_time updateTime, md5, line, send_count sendCount, check_type checkType, category
+   		from empty_check
+   		where customer_id = #{customerId} and id = #{emptyId}
+   		limit 0,1
+   	</select>
+</mapper>

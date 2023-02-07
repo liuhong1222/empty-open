@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.CustomerMapper">
+
+   	<select id="getCustomerById" resultType="com.zhongzhi.empty.entity.Customer">
+   		select id, name, agent_id agentId, phone, password, salt, email, unzip_password unzipPassword, 
+   		       customer_type customerType, remark, state, ip, area, operator, version, create_time createTime, 
+   		       update_time updateTime,referer
+   		from customer
+   		where id = #{id}
+   		limit 0,1
+   	</select>
+   	
+   	<select id="findAll" resultType="com.zhongzhi.empty.entity.Customer">
+   		select id, name, agent_id agentId, phone, password, salt, email, unzip_password unzipPassword, 
+   		       customer_type customerType, remark, state, ip, area, operator, version, create_time createTime, 
+   		       update_time updateTime,referer
+   		from customer
+   	</select>
+</mapper>

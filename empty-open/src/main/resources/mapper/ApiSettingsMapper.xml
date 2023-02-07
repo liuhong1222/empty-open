@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.ApiSettingsMapper">
+
+   	<select id="getByAppId" resultType="com.zhongzhi.empty.entity.ApiSettings">
+   		select customer_id customerId,app_id appId,app_key appKey,remark,state,
+   			   version,create_time createTime,update_time updateTime
+   		from api_settings
+   		where app_id = #{appId}
+   		limit 0,1
+   	</select>
+</mapper>

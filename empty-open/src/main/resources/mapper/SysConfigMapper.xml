@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.SysConfigMapper">
+
+   	<select id="findOneByKey" resultType="com.zhongzhi.empty.entity.SysConfig">
+   		select id, param_key paramKey, param_value paramValue, status, remark
+   		from sys_config
+   		where param_key = #{keys}
+   		limit 0,1
+   	</select>
+</mapper>

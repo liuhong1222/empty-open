@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.InternationalCvsFilePathMapper">
+
+    <insert id="saveOne" parameterType="com.zhongzhi.empty.entity.InternationalCvsFilePath">
+        insert into international_cvs_file_path(id, customer_id, create_date, international_id, active_file_path, active_file_size,
+                                                active_number, no_register_file_path, no_register_file_size, no_register_number, 
+                                                unknown_number,unknown_file_path,unknown_file_size,
+                                                zip_name, zip_path, zip_size, total_number, create_time,deleted,update_time)
+        values
+            (#{id},#{customerId},CURRENT_DATE(),#{internationalId},#{activeFilePath},#{activeFileSize},#{activeNumber},#{noRegisterFilePath},
+             #{noRegisterFileSize},#{noRegisterNumber},#{unknownNumber},#{unknownFilePath},#{unknownFileSize},#{zipName},#{zipPath},#{zipSize},#{totalNumber},now(),0,now())
+    </insert>
+
+    <select id="findOne" resultType="com.zhongzhi.empty.entity.InternationalCvsFilePath">
+        select id, customer_id, create_date, international_id, active_file_path, active_file_size,
+               active_number, no_register_file_path, no_register_file_size, no_register_number, 
+               unknown_number,unknown_file_path,unknown_file_size,
+               zip_name, zip_path, zip_size, total_number, create_time,deleted,update_time
+        from international_cvs_file_path
+        where customer_id = #{customerId} and international_id = #{internationalId}
+        limit 0,1
+    </select>
+
+    <!--删除-->
+    <update id="delete">
+        update international_cvs_file_path
+        set deleted = 1,update_time = now()
+        where id=#{id}
+    </update>
+</mapper>

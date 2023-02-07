@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.CustomerBalanceMapper">
+
+   	<select id="findOneByCustomerId" resultType="com.zhongzhi.empty.entity.CustomerBalance">
+   		select id, customer_id customerId, empty_count emptyCount, realtime_count realtimeCount,
+   		       international_count,direct_common_count,line_direct_count,
+   		       version, create_time createTime, update_time updateTime,last_time lastTime
+   		from customer_balance
+   		where customer_id = #{customerId}
+   		limit 0,1
+   	</select>
+   	
+   	<select id="findOneByCustomerIdForUpdate" resultType="com.zhongzhi.empty.entity.CustomerBalance">
+   		select id, customer_id customerId, empty_count emptyCount, realtime_count realtimeCount,
+   		       international_count internationalCount,direct_common_count,line_direct_count,
+   		       version, create_time, update_time,last_time lastTime
+   		from customer_balance
+   		where customer_id = #{customerId}
+   		for update
+   	</select>
+   	
+   	<update id="balanceSettlement">
+   		update customer_balance
+   		set empty_count = empty_count - #{emptyRealCount},
+   		    realtime_count = realtime_count - #{realtimeRealCount},
+   		    international_count = international_count - #{internationalCount},
+   		    direct_common_count = direct_common_count - #{directCommonRealCount},
+   		    line_direct_count = line_direct_count - #{lineDirectRealCount},
+   		    <if test="lastTime != null and lastTime != ''">
+    			last_time = #{lastTime},
+    		</if>
+   		    update_time = now()
+   		where customer_id = #{customerId}
+   	</update>
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.CustomerBalance">
+   		replace into customer_balance(id, customer_id,empty_count,realtime_count,international_count,version,create_time,update_time,last_time)
+   		values(#{id},#{customerId},#{emptyCount},#{realtimeCount},#{internationalCount},0,now(),now(),null)
+   	</insert>
+   	
+   	<insert id="saveList" parameterType="java.util.List">
+   		replace into customer_balance(id, customer_id, empty_count, realtime_count, international_count,version,create_time, update_time,last_time)
+   		values
+		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.customerId},#{item.emptyCount},#{item.realtimeCount},#{item.internationalCount},0,now(),now(),null)
+		</foreach>
+   	</insert>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.IntDirectCheckMapper">
+
+   	<insert id="saveList" parameterType="java.util.List">
+   		insert into int_direct_check(id, agent_id, agent_name, customer_id, country_code, extern_file_id,product_type,file_name, file_size, file_url,
+   									     illegal_number, total_number, active_count, no_register_count,status, check_type, deleted, 
+   									     md5, remark, version, create_time, update_time)
+   		values
+		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.agentId},#{item.agentName},#{item.customerId},#{item.countryCode},#{item.externFileId},#{item.productType},#{item.fileName},#{item.fileSize},
+												#{item.fileUrl},#{item.illegalNumber},#{item.totalNumber},#{item.activeCount},#{item.noRegisterCount},
+												#{item.status},#{item.checkType},0,#{item.md5},#{item.remark},#{item.version},now(),now())
+		</foreach>
+   	</insert>
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.IntDirectCheck">
+   		insert into int_direct_check(id, agent_id, agent_name, customer_id, country_code,extern_file_id, product_type,file_name, file_size, file_url,
+   									     illegal_number, total_number, active_count, no_register_count,status, check_type, deleted, 
+   									     md5, remark, version, create_time, update_time)
+   		values
+								   		(#{id},#{agentId},#{agentName},#{customerId},#{countryCode},#{externFileId},#{productType},#{fileName},#{fileSize},
+												#{fileUrl},#{illegalNumber},#{totalNumber},#{activeCount},#{noRegisterCount},
+												#{status},#{checkType},0,#{md5},#{remark},#{version},now(),now())
+   	</insert>
+   	
+   	<update id="updateOne" parameterType="com.zhongzhi.empty.entity.IntDirectCheck">
+   		update int_direct_check
+   		set status = #{status},
+   		    active_count = #{activeCount},
+   		    no_register_count = #{noRegisterCount},
+   		    illegal_number = #{illegalNumber},
+   		    total_number = #{totalNumber},
+   		    extern_file_id = #{externFileId},
+   		    update_time = now()
+   		where id = #{id}
+   	</update>
+
+	<select id="findOne" resultType="com.zhongzhi.empty.entity.IntDirectCheck">
+   		select id, agent_id, agent_name, customer_id, country_code, extern_file_id,product_type,file_name, file_size, file_url,
+		     illegal_number, total_number, active_count, no_register_count,status, check_type, deleted, 
+		     md5, remark, version, create_time, update_time
+   		from int_direct_check
+   		where customer_id = #{customerId} and id = #{intDirectId}
+   		limit 0,1
+   	</select>
+
+    <select id="findByStatusAndCreateTime" resultType="com.zhongzhi.empty.entity.IntDirectCheck">
+		select
+			id, agent_id, agent_name, customer_id, country_code, extern_file_id,product_type,file_name, file_size, file_url,
+		     illegal_number, total_number, active_count, no_register_count,status, check_type, deleted, 
+		     md5, remark, version, create_time, update_time
+		from int_direct_check
+		where status=#{status} and create_time &gt;= #{date}
+		order by create_time desc
+	</select>
+
+    <select id="getTestRecord" resultType="com.zhongzhi.empty.entity.IntDirectCheck">
+		select
+			id, agent_id, agent_name, customer_id, country_code, extern_file_id,product_type,file_name, file_size, file_url,
+		     illegal_number, total_number, active_count, no_register_count,status, check_type, deleted, 
+		     md5, remark, version, create_time, update_time
+		from int_direct_check
+		where customer_id=#{customerId}
+		order by create_time desc
+	</select>
+
+	<update id="delete">
+		update int_direct_check
+		set deleted = 1, update_time = now()
+		where id=#{id}
+	</update>
+</mapper>

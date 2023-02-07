@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.RealtimeCheckMapper">
+
+   	<insert id="saveList" parameterType="java.util.List">
+   		insert into realtime_check(id, agent_id, agent_name, customer_id, name, size, normal, empty, on_call, 
+   		                           online_but_not_available, shutdown, call_transfer, suspected_shutdown, service_suspended,
+   		                            number_portability, unknown, illegal_number, total_number, file_url, status, check_type, 
+   		                            retry_count, deleted, md5, line, send_count, remark, version, create_time, update_time, exception_fail_count)
+   		values
+		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.agentId},#{item.agentName},#{item.customerId},#{item.name},#{item.size},#{item.normal},
+				#{item.empty},#{item.onCall},#{item.onlineButNotAvailable},#{item.shutdown},#{item.callTransfer},#{item.suspectedShutdown},
+				#{item.serviceSuspended},#{item.numberPortability},#{item.unknown},#{item.illegalNumber},#{item.totalNumber},#{item.fileUrl},
+				#{item.status},#{item.checkType},#{item.retryCount},0,#{item.md5},#{item.line},#{item.sendCount},
+				#{item.remark},#{item.version},now(),now(),#{item.exceptionFailCount})
+		</foreach>
+   	</insert>
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.RealtimeCheck">
+   		insert into realtime_check(id, agent_id, agent_name, customer_id, name, size, normal, empty, on_call, 
+   		                           online_but_not_available, shutdown, call_transfer, suspected_shutdown, service_suspended,
+   		                            number_portability, unknown, illegal_number, total_number, file_url, status, check_type, 
+   		                            retry_count, deleted, md5, line, send_count, remark, version, create_time, update_time, exception_fail_count)
+   		values
+   		(#{id},#{agentId},#{agentName},#{customerId},#{name},#{size},#{normal},
+				#{empty},#{onCall},#{onlineButNotAvailable},#{shutdown},#{callTransfer},#{suspectedShutdown},
+				#{serviceSuspended},#{numberPortability},#{unknown},#{illegalNumber},#{totalNumber},#{fileUrl},
+				#{status},#{checkType},#{retryCount},0,#{md5},#{line},#{sendCount},
+				#{remark},#{version},now(),now(),#{exceptionFailCount})
+   	</insert>
+   	
+   	<update id="updateOne" parameterType="com.zhongzhi.empty.entity.RealtimeCheck">
+   		update realtime_check
+   		set status = #{status},
+   		    normal = #{normal},
+   		    empty = #{empty},
+   		    on_call = #{onCall},
+   		    online_but_not_available = #{onlineButNotAvailable},
+   		    shutdown = #{shutdown},
+   		    suspected_shutdown = #{suspectedShutdown},
+   		    service_suspended = #{serviceSuspended},
+   		    number_portability = #{numberPortability},
+   		    unknown = #{unknown},
+   		    illegal_number = #{illegalNumber},
+   		    total_number = #{totalNumber},
+   		    exception_fail_count = #{exceptionFailCount},
+   		    line = #{line},
+   		    update_time = now()
+   		where id = #{id}
+   	</update>
+   	
+   	<select id="findOne" resultType="com.zhongzhi.empty.entity.RealtimeCheck">
+   		select id, agent_id agentId, agent_name agentName, customer_id customerId, name, size, normal, empty, on_call onCall, 
+                online_but_not_available onlineButNotAvailable, shutdown, call_transfer callTransfer, suspected_shutdown suspectedShutdown, service_suspended serviceSuspended,
+                 number_portability numberPortability, unknown, illegal_number illegalNumber, total_number totalNumber, file_url fileUrl, status, check_type checkType, 
+                 retry_count retryCount, deleted, md5, line, send_count sendCount, remark, version, create_time createTime, update_time updateTime, exception_fail_count exceptionFailCount
+   		from realtime_check
+   		where customer_id = #{customerId} and id = #{emptyId}
+   		limit 0,1
+   	</select>
+</mapper>

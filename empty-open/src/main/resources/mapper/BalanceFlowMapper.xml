@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.BalanceFlowMapper">
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.BalanceFlow">
+   		insert into balance_flow(id, customer_id,category, freezd_money, redis_money, real_money, db_money,
+   		                          old_db_money, last_time, cur_time, opt_type)
+   		values
+   		(#{id},#{customerId},#{category},#{freezdMoney},#{redisMoney},#{realMoney},#{dbMoney},#{oldDbMoney},
+   		 #{lastTime},#{curTime},#{optType})
+   	</insert>
+   	
+   	<insert id="saveList" parameterType="java.util.List">
+   		insert into balance_flow(id, customer_id,category, freezd_money, redis_money, real_money, db_money,
+   		                          old_db_money, last_time, cur_time, opt_type)
+   		values
+   		<foreach collection="list" item="item" index="index" separator=",">
+				(#{item.id},#{item.customerId},#{item.category},#{item.freezdMoney},#{item.redisMoney},#{item.realMoney},#{item.dbMoney},#{item.oldDbMoney},
+				#{item.lastTime},#{item.curTime},#{item.optType})
+		</foreach>
+   	</insert>
+</mapper>

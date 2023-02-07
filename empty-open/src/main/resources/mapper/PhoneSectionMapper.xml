@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.PhoneSectionMapper">
+
+   	<select id="findAll" resultType="com.zhongzhi.empty.entity.PhoneSection">
+   		select areaCode, city, cityCode, isp,postCode,prefix,province,section
+   		from phone_section
+   	</select>
+</mapper>

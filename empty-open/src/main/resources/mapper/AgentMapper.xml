@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.AgentMapper">
+
+   	<select id="getAgentById" resultType="com.zhongzhi.empty.entity.Agent">
+   		select id, linkman_name linkmanName, linkman_phone linkmanPhone, linkman_email linkmanEmail,
+   		       min_payment_amount minPaymentAmount, min_recharge_number minRechargeNumber, business_license_path businessLicensePath,
+		        company_name companyName, company_short_name companyShortName, business_license_address businessLicenseAddress,
+		         business_license_number businessLicenseNumber, legal_person legalPerson,
+		        business_license_expire_start_time businessLicenseExpireStartTime, business_license_expire_end_time businessLicenseExpireEndTime,
+		         agent_level agentLevel, real_level realLevel, price,
+		        warnings_number warningsNumber, register_gift registerGift, state, remark, version, create_time createTime, update_time updateTime, real_price realPrice, 
+		        real_min_payment_amount realMinPaymentAmount,
+		        real_min_recharge_number realMinRechargeNumber, real_warnings_number realWarningsNumber
+   		from agent
+   		where id = #{id}
+   		limit 0,1
+   	</select>
+</mapper>

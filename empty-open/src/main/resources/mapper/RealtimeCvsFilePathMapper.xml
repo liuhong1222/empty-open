@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.RealtimeCvsFilePathMapper">
+   	
+   	<insert id="saveOne" parameterType="com.zhongzhi.empty.entity.RealtimeCvsFilePath">
+   		insert into realtime_cvs_file_path(id, customer_id, create_date, realtime_id, normal_file_path, normal_file_size,
+   		                                   normal_number, empty_file_path, empty_file_size, empty_number, oncall_file_path, 
+   		                                   oncall_file_size, oncall_number, not_online_file_path, not_onlint_file_size, not_online_number, 
+   		                                   shutdown_file_path, shutdown_file_size, shutdown_number, like_shutdown_file_path, 
+   		                                   like_shutdown_file_size, like_shutdown_number, tingji_file_path, tingji_file_size, 
+   		                                   tingji_number, mnp_file_path, mnp_file_size, mnp_number, moberr_file_path, moberr_file_size, 
+   		                                   moberr_number, unknown_file_path, unknown_file_size, unknown_number, zip_name, zip_path, 
+   		                                   zip_size, total_number, create_time,deleted)
+   		values
+   		(#{id},#{customerId},CURRENT_DATE(),#{realtimeId},#{normalFilePath},#{normalFileSize},#{normalNumber},#{emptyFilePath},
+   		#{emptyFileSize},#{emptyNumber},#{oncallFilePath},#{oncallFileSize},#{oncallNumber},#{notOnlineFilePath},#{notOnlineFileSize},
+   		#{notOnlineNumber},#{shutdownFilePath},#{shutdownFileSize},#{shutdownNumber},#{likeShutdownFilePath},#{likeShutdownFileSize},
+   		#{likeShutdownNumber},#{tingjiFilePath},#{tingjiFileSize},#{tingjiNumber},#{mnpFilePath},#{mnpFileSize},#{mnpNumber},
+   		#{moberrFilePath},#{moberrFileSize},#{moberrNumber},#{unknownFilePath},#{unknownFileSize},#{unknownNumber},#{zipName},
+   		#{zipPath},#{zipSize},#{totalNumber},now(),0)
+   	</insert>
+   	
+   	<select id="findOne" resultType="com.zhongzhi.empty.entity.RealtimeCvsFilePath"> 
+   		select id, customer_id customerId, create_date createDate, realtime_id realtimeId, normal_file_path normalFilePath, normal_file_size normalFileSize,
+                normal_number normalNumber, empty_file_path emptyFilePath, empty_file_size emptyFileSize, empty_number emptyNumber, oncall_file_path oncallFilePath, 
+                oncall_file_size oncallFileSize, oncall_number oncallNumber, not_online_file_path notOnlineFilePath, not_onlint_file_size notOnlineFileSize, not_online_number notOnlineNumber, 
+                shutdown_file_path shutdownFilePath, shutdown_file_size shutdownFileSize, shutdown_number shutdownNumber, like_shutdown_file_path likeShutdownFilePath, 
+                like_shutdown_file_size likeShutdownFileSize, like_shutdown_number likeShutdownNumber, tingji_file_path tingjiFilePath, tingji_file_size tingjiFileSize, 
+                tingji_number tingjiNumber, mnp_file_path mnpFilePath, mnp_file_size mnpFileSize, mnp_number mnpNumber, moberr_file_path moberrFilePath, moberr_file_size moberrFileSize, 
+                moberr_number moberrNumber, unknown_file_path unknownFilePath, unknown_file_size unknownFileSize, unknown_number unknownNumber, zip_name zipName, zip_path zipPath, 
+   		        zip_size zipSize, total_number totalNumber, create_time createTime
+   		from realtime_cvs_file_path
+   		where customer_id = #{customerId} and realtime_id = #{realtimeId}
+   		limit 0,1
+   	</select>
+</mapper>

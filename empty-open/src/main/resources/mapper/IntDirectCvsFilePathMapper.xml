@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhongzhi.empty.dao.IntDirectCvsFilePathMapper">
+
+    <insert id="saveOne" parameterType="com.zhongzhi.empty.entity.IntDirectCvsFilePath">
+        insert into int_direct_cvs_file_path(id, customer_id, create_date, int_direct_id, country_code,product_type,active_file_path, active_file_size,
+                                                active_number, no_register_file_path, no_register_file_size, no_register_number, 
+                                                zip_name, zip_path, zip_size, total_number, create_time,deleted,update_time)
+        values
+            (#{id},#{customerId},CURRENT_DATE(),#{intDirectId},#{countryCode},#{productType},#{activeFilePath},#{activeFileSize},#{activeNumber},#{noRegisterFilePath},
+             #{noRegisterFileSize},#{noRegisterNumber},#{zipName},#{zipPath},#{zipSize},#{totalNumber},now(),0,now())
+    </insert>
+
+    <select id="findOne" resultType="com.zhongzhi.empty.entity.IntDirectCvsFilePath">
+        select id, customer_id, create_date, int_direct_id, country_code,product_type,active_file_path, active_file_size,
+                active_number, no_register_file_path, no_register_file_size, no_register_number, 
+                zip_name, zip_path, zip_size, total_number, create_time,deleted,update_time
+        from int_direct_cvs_file_path
+        where customer_id = #{customerId} and int_direct_id = #{intDirectId}
+        limit 0,1
+    </select>
+
+    <!--删除-->
+    <update id="delete">
+        update int_direct_cvs_file_path
+        set deleted = 1,update_time = now()
+        where id=#{id}
+    </update>
+</mapper>
