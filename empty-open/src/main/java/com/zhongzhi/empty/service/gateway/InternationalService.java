@@ -79,7 +79,31 @@ public class InternationalService{
             .writeTimeout(5, TimeUnit.SECONDS)
             .build();
 		
-	public UploadResponse upload(Long customerId,String fileName,String filePath,String productType){
+	public UploadResponse upload(Long customerId,String fileName,String filePath){
+		long st = System.currentTimeMillis();
+		try {
+			String urlString = url + InternationalIntefaceEnum.COMMON_UPLOAD.getSubUrl() + String.format("?account=%s&pass=%s", appId,appKey);
+			InternationalUploadResponse response = internationalHttpServcie.doHttpUpload(InternationalIntefaceEnum.COMMON_UPLOAD.getSubUrl(), urlString, fileName, filePath, InternationalUploadResponse.class);
+	        if(response == null) {
+	        	log.error("{}, 国际检测上传接口调用失败，下游接口返回结果为空，filePath:{}",customerId,filePath);
+	        	return null;
+	        }
+	        
+	        if(!CommonConstant.INTERNATIONAL_SUCCESS_CODE.equals(response.getRES())) {
+	        	log.error("{}, 国际检测上传接口调用失败，filePath:{},response:{}",customerId,filePath,JSON.toJSONString(response));
+	        	return null;
+	        }
+	        	        
+	        log.info("{}, 国际检测上传接口调用成功，filePath:{},response:{},useTime:{}",customerId,filePath,
+	        		JSON.toJSONString(response),(System.currentTimeMillis()-st));
+			return response.getDATA();
+		} catch (Exception e) {
+			log.error("{}, 国际号码检测上传接口调用异常，filePath:{},info:",customerId,filePath,e);
+			return null;
+		}
+	}
+	
+	public UploadResponse directUpload(Long customerId,String fileName,String filePath,String productType){
 		long st = System.currentTimeMillis();
 		try {
 			String urlString = url + InternationalIntefaceEnum.UPLOAD.getSubUrl() + String.format("?account=%s&pass=%s&type=%s", appId,appKey,DirectTypeEnum.getCodeByName(productType));
@@ -98,7 +122,7 @@ public class InternationalService{
 	        		JSON.toJSONString(response),(System.currentTimeMillis()-st));
 			return response.getDATA();
 		} catch (Exception e) {
-			log.error("{}, 国际号码检测上传接口调用异常，filePath:{},info:",customerId,filePath,e);
+			log.error("{}, 定向国际号码检测上传接口调用异常，filePath:{},info:",customerId,filePath,e);
 			return null;
 		}
 	}

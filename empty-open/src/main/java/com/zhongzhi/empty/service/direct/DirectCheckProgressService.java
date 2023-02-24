@@ -11,12 +11,14 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.zhongzhi.empty.constants.CommonConstant;
 import com.zhongzhi.empty.constants.IntDirectRedisKeyConstant;
+import com.zhongzhi.empty.constants.InternationalRedisKeyConstant;
 import com.zhongzhi.empty.redis.RedisClient;
 import com.zhongzhi.empty.util.DingDingMessage;
 
@@ -73,8 +75,9 @@ public class DirectCheckProgressService {
 			try {
 				fileInternationalCheckService.queryIntDirectProcess(progressTaskInfo);
 			} catch (Exception e) {
-				log.error("执行定向国际检测进度查询定时任务异常，param:{},info:",JSON.toJSONString(progressTaskInfo),e);
-	    		dingDingMessage.sendMessage(String.format("警告：%s,执行定向国际检测进度查询定时任务异常，intDirectId:%s，info:%s", progressTaskInfo.getCustomerId(),progressTaskInfo.getIntDirectId(),e));
+				log.error("执行{}进度查询定时任务异常，param:{},info:",StringUtils.isNotBlank(progressTaskInfo.getProductType()) ? "国际检测":"定向国际检测",JSON.toJSONString(progressTaskInfo),e);
+	    		dingDingMessage.sendMessage(String.format("警告：%s,执行%s进度查询定时任务异常，id:%s，info:%s", progressTaskInfo.getCustomerId(),
+	    				StringUtils.isNotBlank(progressTaskInfo.getProductType()) ? "国际检测":"定向国际检测",progressTaskInfo.getIntDirectId(),e));
 			}
 			
 		}
@@ -99,13 +102,23 @@ public class DirectCheckProgressService {
     		while(it.hasNext()) {
     			ScheduledFuture<?> future = it.next();
     			ProgressTaskInfo progressTaskInfo = map.get(future);
-        		String fileTestCode = redisClient.get(String.format(IntDirectRedisKeyConstant.THE_RUN_KEY, progressTaskInfo.getCustomerId(), progressTaskInfo.getIntDirectId()));
-        		if(CommonConstant.FILE_TEST_FAILED_CODE.equals(fileTestCode)) {
-        			// 取消定时任务
-        			future.cancel(true);
-        			map.remove(future);
-        			log.info("取消定向国际检测进度查询任务成功，info:{}",JSON.toJSONString(progressTaskInfo));
-        		}
+    			if(StringUtils.isNotBlank(progressTaskInfo.getProductType())) {
+    				String fileTestCode = redisClient.get(String.format(IntDirectRedisKeyConstant.THE_RUN_KEY, progressTaskInfo.getCustomerId(), progressTaskInfo.getIntDirectId()));
+            		if(CommonConstant.FILE_TEST_FAILED_CODE.equals(fileTestCode)) {
+            			// 取消定时任务
+            			future.cancel(true);
+            			map.remove(future);
+            			log.info("取消定向国际检测进度查询任务成功，info:{}",JSON.toJSONString(progressTaskInfo));
+            		}
+    			}else {
+    				String fileTestCode = redisClient.get(String.format(InternationalRedisKeyConstant.THE_RUN_KEY, progressTaskInfo.getCustomerId(), progressTaskInfo.getIntDirectId()));
+            		if(CommonConstant.FILE_TEST_FAILED_CODE.equals(fileTestCode)) {
+            			// 取消定时任务
+            			future.cancel(true);
+            			map.remove(future);
+            			log.info("取消国际检测进度查询任务成功，info:{}",JSON.toJSONString(progressTaskInfo));
+            		}
+    			}
     		}
 		} catch (Exception e) {
 			log.error("执行取消定向国际检测进度查询定时任务异常，map:{},info:",JSON.toJSONString(map),e);

@@ -24,10 +24,12 @@ import com.zhongzhi.empty.constants.CommonConstant;
 import com.zhongzhi.empty.constants.InternationalRedisKeyConstant;
 import com.zhongzhi.empty.constants.RealtimeRedisKeyConstant;
 import com.zhongzhi.empty.entity.Customer;
+import com.zhongzhi.empty.entity.IntDirectCvsFilePath;
 import com.zhongzhi.empty.entity.InternationalCvsFilePath;
 import com.zhongzhi.empty.entity.InternationalTxtFileContent;
 import com.zhongzhi.empty.entity.MobileColor;
 import com.zhongzhi.empty.entity.TxtFileContent;
+import com.zhongzhi.empty.enums.IntDirectTxtSuffixEnum;
 import com.zhongzhi.empty.enums.InternationalMobileReportGroupEnum;
 import com.zhongzhi.empty.enums.InternationalMobileReportGroupEnum.FileDetection;
 import com.zhongzhi.empty.enums.InternationalTxtSuffixEnum;
@@ -35,6 +37,7 @@ import com.zhongzhi.empty.enums.RealtimeTxtSuffixEnum;
 import com.zhongzhi.empty.http.international.QueryResponse;
 import com.zhongzhi.empty.redis.RedisClient;
 import com.zhongzhi.empty.service.customer.CustomerService;
+import com.zhongzhi.empty.service.direct.ProgressTaskInfo;
 import com.zhongzhi.empty.service.gateway.InternationalService;
 import com.zhongzhi.empty.util.CommonUtils;
 import com.zhongzhi.empty.util.DateUtils;
@@ -98,6 +101,95 @@ public class InternationalFileService {
         result.setMobileCounts(fileCount);
         result.setErrorCounts(splitFileVo.getErrorCounts());
         result.setMobileList(splitFileVo.getMobileList());
+		return result;
+	}
+	
+	public TxtFileContent getValidMobileListByInternationalTxt(String fileUrl, String countryCode) {
+		File file = new File(fileUrl); 
+		if(file.length() <= 1048576 * 6) {
+			return getValidMobileListBySmallIntDirectTxt(fileUrl,countryCode);
+		}
+		
+		// 分割文件
+		Long tempOrders = snowflake.nextId();
+        SplitFileVo splitFileVo = TxtFileUtil.splitIntDirectFileByError(file, (int)(((file.length() / (1048576 * 10)) + 1) * 8),tempOrders,countryCode);
+        // 合并文件且计算文件号码数量
+    	int fileCount = TxtFileUtil.distinctNew(splitFileVo.getFileList(), getTxtPath(fileUrl, InternationalTxtSuffixEnum.ALL), (int)(((file.length() / (1048576 * 10)) + 1) * 8));
+        
+    	//获取文件编码格式
+    	String fileCode = EncodingDetect.getJavaEncode(fileUrl);
+    	TxtFileContent result =  new TxtFileContent();
+    	result.setFileCode(fileCode);
+        result.setMobileCounts(fileCount);
+        result.setErrorCounts(splitFileVo.getErrorCounts());
+        result.setMobileList(splitFileVo.getMobileList());
+		return result;
+	}
+	
+	public TxtFileContent getValidMobileListBySmallIntDirectTxt(String fileUrl, String countryCode) {
+		TxtFileContent result =  new TxtFileContent();
+        File file = new File(fileUrl);        
+        BufferedReader br = null;
+        Integer errorCounts = 0;
+        List<String> tempList = new ArrayList<String>();
+		HashSet<String> temeSet = new HashSet<String>();
+		//获取文件编码格式
+    	String fileCode = EncodingDetect.getJavaEncode(fileUrl);
+        try {
+	        if (file.isFile() && file.exists()) {
+	        	result.setFileCode(fileCode);
+	        	//读取文件
+	            br = new BufferedReader(new InputStreamReader(new FileInputStream(file), fileCode));				
+	            String lineTxt = null;	
+	            while ((lineTxt = br.readLine()) != null) {	
+	                if (StringUtils.isBlank(lineTxt)) {
+	                    continue;
+	                }
+	                // 去掉字符串中的所有空格
+	                lineTxt = lineTxt.trim().replace(" ", "").replace("　", "");
+	                // 验证是否为正常的有效数字
+	                if (!CommonUtils.isNumericByInternational(lineTxt)) {
+	                	errorCounts++;
+	                    continue;
+	                }
+	                
+	                if("91".equals(countryCode)) {
+	                	if(lineTxt.length() < 12) {
+	                		lineTxt = countryCode + lineTxt;
+	                	}
+	                }else {
+	                	if(!lineTxt.startsWith(countryCode)) {
+	                		lineTxt = countryCode + lineTxt;
+	                	}
+	                }
+	                
+	                temeSet.add(lineTxt);
+	            }	 
+	            
+	            //保存全部的号码到缓存
+	            tempList = new ArrayList<String>(temeSet);
+	            TxtFileUtil.saveTxt(tempList, getTxtPath(fileUrl, InternationalTxtSuffixEnum.ALL), fileCode, false);
+	        }
+        } catch (UnsupportedEncodingException e) {
+			log.error(fileUrl+"----------文件编码格式转换异常：", e);
+		} catch (FileNotFoundException e) {
+			log.error(fileUrl+"----------文件未找到：", e);
+		} catch (IOException e) {
+			log.error(fileUrl+"----------文件流读取异常：", e);
+		}finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                log.error(fileUrl+"----------文件流关闭异常：", e);
+            }
+
+        }
+
+        result.setMobileList(tempList);
+        result.setMobileCounts(tempList.size());
+        result.setErrorCounts(errorCounts);
 		return result;
 	}
 	
@@ -238,9 +330,74 @@ public class InternationalFileService {
 		return TxtFileUtil.readTxt(getTxtPath(fileUrl, InternationalTxtSuffixEnum.ALL), fileEncoding, fromIndex, BIG_DATA_API_REQUEST_SIZE);
 	}
 	
-	private String getTxtPath(String fileUrl, InternationalTxtSuffixEnum txtSuffixEnum) {
+	public String getTxtPath(String fileUrl, InternationalTxtSuffixEnum txtSuffixEnum) {
         return fileUrl + "_" + txtSuffixEnum.getTxtSuffix();
     }
+	
+	public InternationalCvsFilePath getTestResultByTxtFile(QueryResponse queryResponse, ProgressTaskInfo progressTaskInfo) throws Exception{
+		InternationalCvsFilePath internationalCvsFilePath = new InternationalCvsFilePath();
+		internationalCvsFilePath.setCustomerId(progressTaskInfo.getCustomerId());
+		internationalCvsFilePath.setInternationalId(progressTaskInfo.getIntDirectId());
+		internationalCvsFilePath.setCreateDate(DateUtils.getNowDate1());
+		
+		String subFilePath = DateUtils.getDate() + "/" + progressTaskInfo.getCustomerId() + "/" + progressTaskInfo.getIntDirectId() + "/";
+        String filePath = fileUploadPath + subFilePath;
+        int totalCount = 0;
+        
+        List<String> list = new ArrayList<String>();
+        // 调用上游接口下载已激活文件包
+		Boolean flag = internationalService.download(progressTaskInfo.getCustomerId(), progressTaskInfo.getExternFileId(), "2", filePath + CommonConstant.ACTIVE_IN_FILE_NAME);
+		if(!flag) {
+			log.error("{}, 调用上游接口下载已激活包失败，intDirectId:{},sendID:{}",progressTaskInfo.getCustomerId(),progressTaskInfo.getIntDirectId(),progressTaskInfo.getExternFileId());
+			dingDingMessage.sendMessage(String.format("警告：%s, 调用上游接口下载已激活包失败，intDirectId:%s,sendID:%s", progressTaskInfo.getCustomerId(),progressTaskInfo.getIntDirectId(),progressTaskInfo.getExternFileId()));
+			return null;
+		}
+		
+		int countActivate = TxtFileUtil.countLines(filePath + CommonConstant.ACTIVE_IN_FILE_NAME, DEFAULT_CHARSET);
+		log.info("----------已激活总条数：" + countActivate);
+		internationalCvsFilePath.setActiveFilePath(subFilePath + CommonConstant.ACTIVE_IN_FILE_NAME);
+		internationalCvsFilePath.setActiveFileSize(String.valueOf(new File(filePath + CommonConstant.ACTIVE_IN_FILE_NAME).length()));
+		internationalCvsFilePath.setActiveNumber(countActivate);
+		list.add(filePath + CommonConstant.ACTIVE_IN_FILE_NAME);
+		totalCount = totalCount + countActivate;
+        
+		// 调用上游接口下载未注册文件包
+		flag = internationalService.download(progressTaskInfo.getCustomerId(), progressTaskInfo.getExternFileId(), "3", filePath + CommonConstant.NO_ACTIVE_IN_FILE_NAME);
+		if(!flag) {
+			log.error("{}, 调用上游接口下载未注册包失败，intDirectId:{},sendID:{}",progressTaskInfo.getCustomerId(),progressTaskInfo.getIntDirectId(),progressTaskInfo.getExternFileId());
+			dingDingMessage.sendMessage(String.format("警告：%s, 调用上游接口下载未注册包失败，intDirectId:%s,sendID:%s", progressTaskInfo.getCustomerId(),progressTaskInfo.getIntDirectId(),progressTaskInfo.getExternFileId()));
+			return null;
+		}
+		
+		int countNoActive = TxtFileUtil.countLines(filePath + CommonConstant.NO_ACTIVE_IN_FILE_NAME, DEFAULT_CHARSET);
+		log.info("----------未激活总条数：" + countNoActive);
+        totalCount += countNoActive;
+        list.add(filePath + CommonConstant.NO_ACTIVE_IN_FILE_NAME);
+        internationalCvsFilePath.setNoRegisterNumber(countNoActive);
+        internationalCvsFilePath.setNoRegisterFilePath(subFilePath + CommonConstant.NO_ACTIVE_IN_FILE_NAME);
+        internationalCvsFilePath.setNoRegisterFileSize(String.valueOf(FileUtil.getFileSize(new File(filePath + CommonConstant.NO_ACTIVE_IN_FILE_NAME))));
+		
+        // 报表文件打包
+        if (!CollectionUtils.isEmpty(list)) {
+            String zipName = progressTaskInfo.getSourceFileName() + ".zip";
+            //获取压缩包加密的密码
+            Customer customer = customerService.getCustomerById(progressTaskInfo.getCustomerId());
+            if (customer == null || StringUtils.isBlank(customer.getUnzipPassword())) {
+                ZipUtil.zip(list.toArray(new String[list.size()]), filePath+zipName);
+            } else {
+                ZipUtil.zip(list.toArray(new String[list.size()]), filePath+zipName, customer.getUnzipPassword());
+            }
+            
+            internationalCvsFilePath.setZipName(zipName);
+            internationalCvsFilePath.setZipPath((subFilePath + zipName));
+            internationalCvsFilePath.setZipSize(String.valueOf(FileUtil.getFileSize(new File(filePath + zipName))));
+            internationalCvsFilePath.setTotalNumber(totalCount);
+        }
+
+        // 删除临时文件
+        deleteTempFileByEnd(progressTaskInfo.getFileUrl());
+		return internationalCvsFilePath;
+	}
 	
 	public InternationalCvsFilePath getTestResultByTxtFile(String fileUrl,  Long customerId,Long internationalId,String sourceFileName) throws Exception{
 		InternationalCvsFilePath internationalCvsFilePath = new InternationalCvsFilePath();

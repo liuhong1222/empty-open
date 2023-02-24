@@ -8,9 +8,14 @@ package com.zhongzhi.empty.http.international;
 public enum InternationalIntefaceEnum {
 	
     /**
-     *上传
+     *定向上传
      */
     UPLOAD("Interface/api/UploadDx.ashx",InternationalUploadResponse.class,"cl_international"),
+    
+    /**
+     *上传
+     */
+    COMMON_UPLOAD("Interface/api/Upload.ashx",InternationalUploadResponse.class,"cl_international"),
     
     /**
      * 查询

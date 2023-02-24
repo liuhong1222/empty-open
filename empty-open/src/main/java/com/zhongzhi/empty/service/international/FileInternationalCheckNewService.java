@@ -106,6 +106,11 @@ public class FileInternationalCheckNewService {
 					totalNumber, sourceFileName, uploadPath, countryCode,productType);
 		}
 		
+		return fileInternationalCheckService.executeInternationalCheck(customerId, internationalId, totalNumber, sourceFileName, uploadPath, countryCode, productType);		
+	}
+	
+	private ApiResult internationalMobileDetection(Long customerId, Long internationalId, Long totalNumber,
+			String sourceFileName, String uploadPath, String countryCode,String productType) {
 		Customer customer = customerService.getCustomerById(customerId);
 		if (customer == null) {
 			return ApiResult.result(ApiCode.BUSINESS_EXCEPTION, "账号不存在", null);
@@ -180,7 +185,7 @@ public class FileInternationalCheckNewService {
         
 		lock.releaseLock();
 		return ApiResult.ok(new InternationalRunTestDomian(mobileCount, CommonConstant.THETEST_RUNNING,
-				internationalId.toString(), sendID));		
+				internationalId.toString(), sendID));
 	}
 	
 	private Future<?> internationalFileDetectionByTxt(int mobileCount, Long customerId, Integer expire,
